@@ -22,7 +22,7 @@ Swaggera bu URL'den erişebilirsiniz
 H2 Database Bağlantı Ayarları
 -----------------------
 
- Driver Class  = org.h2.Driver 
- JDBC URL =  jdbc:h2:mem:ticketSystemDb
- User Name = sa  
- Password   =
+ #####Driver Class  = org.h2.Driver 
+ #####JDBC URL =  jdbc:h2:mem:ticketSystemDb
+ #####User Name = sa  
+ ##### Password   =
