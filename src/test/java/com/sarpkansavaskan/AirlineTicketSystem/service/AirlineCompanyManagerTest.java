@@ -18,7 +18,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
-
+//Test konusunda çok bilgim olmadığı için elimden geleni yapmaya çalıştım umarım beğenirsiniz...
 class AirlineCompanyManagerTest extends TestSupport {
 
     private AirlineCompanyRepository airlineCompanyRepository;
