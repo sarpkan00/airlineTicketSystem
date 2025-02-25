@@ -58,4 +58,10 @@ jobs:
               # Check if commit message is descriptive enough
               DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"  # Minimum 10 characters for description
               if [[ ! $COMMIT_MSG =~ $DESC_PATTERN ]]; then
-  
+                echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
+                exit 1
+              else
+                echo "✅ Commit message is correctly formatted and descriptive: $COMMIT_MSG"
+              fi
+            fi
+          done <<< "$COMMI
