@@ -25,23 +25,22 @@ jobs:
             BRANCH_NAME="${GITHUB_HEAD_REF}"
           fi
 
-          # Allow branches starting with deployment/
+          # Updated pattern to handle deployment/ branches differently
           if [[ $BRANCH_NAME == deployment/* ]]; then
             echo "✅ Branch name is correctly formatted (deployment): $BRANCH_NAME"
-            exit 0
-          fi
-
-          PATTERN="^(feature|bugfix|merge)\/PAYB-[0-9]+(-(dev|uat|stage|master))?$"
-          if [[ ! $BRANCH_NAME =~ $PATTERN ]]; then
-            echo "❌ Invalid branch name: $BRANCH_NAME"
-            echo "Branch name must follow one of these formats:"
-            echo "  - feature/PAYB-1234"
-            echo "  - bugfix/PAYB-1234"
-            echo "  - merge/PAYB-1234-dev, merge/PAYB-1234-uat, merge/PAYB-1234-stage, merge/PAYB-1234-master"
-            echo "  - deployment/<any-name>"
-            exit 1
           else
-            echo "✅ Branch name is correctly formatted: $BRANCH_NAME"
+            PATTERN="^(feature|bugfix|merge)\/PAYB-[0-9]+(-(dev|uat|stage|master))?$"
+            if [[ ! $BRANCH_NAME =~ $PATTERN ]]; then
+              echo "❌ Invalid branch name: $BRANCH_NAME"
+              echo "Branch name must follow one of these formats:"
+              echo "  - feature/PAYB-1234"
+              echo "  - bugfix/PAYB-1234"
+              echo "  - merge/PAYB-1234-dev, merge/PAYB-1234-uat, merge/PAYB-1234-stage, merge/PAYB-1234-master"
+              echo "  - deployment/<any-name>"
+              exit 1
+            else
+              echo "✅ Branch name is correctly formatted: $BRANCH_NAME"
+            fi
           fi
 
       - name: Check Commit Messages
