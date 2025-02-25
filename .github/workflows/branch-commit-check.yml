@@ -47,8 +47,9 @@ jobs:
           COMMITS=$(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --oneline --no-merges)
 
           PATTERN="^PAYB-[0-9]+ - .+$"
-          for COMMIT in $COMMITS; do
-            COMMIT_MSG=$(echo $COMMIT | cut -d' ' -f2-)
+          # Loop through commits
+          while IFS= read -r COMMIT; do
+            COMMIT_MSG=$(echo $COMMIT | sed 's/^[a-f0-9]* //')
             if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
               echo "❌ Invalid commit message: $COMMIT_MSG"
               echo "Commit message must follow this format: 'PAYB-1234 - Description'"
@@ -57,10 +58,4 @@ jobs:
               # Check if commit message is descriptive enough
               DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"  # Minimum 10 characters for description
               if [[ ! $COMMIT_MSG =~ $DESC_PATTERN ]]; then
-                echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
-                exit 1
-              else
-                echo "✅ Commit message is correctly formatted and descriptive: $COMMIT_MSG"
-              fi
-            fi
-          done
+  
