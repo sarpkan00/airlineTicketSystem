@@ -16,11 +16,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Tüm commit geçmişini almak için
+          fetch-depth: 0  # Fetch the entire commit history
 
       - name: Check Branch Name
         run: |
-          # Pull request'ten farklı olarak branch adı almak için
+          # To get the branch name differently for pull requests
           if [[ $GITHUB_REF == refs/pull/* ]]; then
             BRANCH_NAME="${GITHUB_HEAD_REF}"
           else
