@@ -44,12 +44,20 @@ jobs:
           git fetch origin
 
           # Get commit messages for the current branch and exclude merges
-          COMMITS=$(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --oneline --no-merges)
+          COMMITS=$(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --pretty=format:"%H %s" --no-merges)
 
           PATTERN="^PAYB-[0-9]+ - .+$"
           # Loop through commits
           while IFS= read -r COMMIT; do
-            COMMIT_MSG=$(echo $COMMIT | sed 's/^[a-f0-9]* //')
+            COMMIT_HASH=$(echo "$COMMIT" | cut -d' ' -f1)
+            COMMIT_MSG=$(echo "$COMMIT" | cut -d' ' -f2-)
+
+            # Skip empty commit messages
+            if [[ -z "$COMMIT_MSG" ]]; then
+              echo "⚠️ Empty commit message found in commit: $COMMIT_HASH"
+              continue
+            fi
+
             if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
               echo "❌ Invalid commit message: $COMMIT_MSG"
               echo "Commit message must follow this format: 'PAYB-1234 - Description'"
