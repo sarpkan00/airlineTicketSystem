@@ -43,23 +43,24 @@ jobs:
           # Ensure we have the latest remote information
           git fetch origin
 
-          # Get commit messages since the last commit on the current branch, excluding merges
-          COMMITS=$(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --pretty=format:"%s" --no-merges)
-          
+          # Get commit messages for the current branch and exclude merges
+          COMMITS=$(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --oneline --no-merges)
+
           PATTERN="^PAYB-[0-9]+ - .+$"
           for COMMIT in $COMMITS; do
-            if [[ ! $COMMIT =~ $PATTERN ]]; then
-              echo "❌ Invalid commit message: $COMMIT"
+            COMMIT_MSG=$(echo $COMMIT | cut -d' ' -f2-)
+            if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
+              echo "❌ Invalid commit message: $COMMIT_MSG"
               echo "Commit message must follow this format: 'PAYB-1234 - Description'"
               exit 1
             else
               # Check if commit message is descriptive enough
               DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"  # Minimum 10 characters for description
-              if [[ ! $COMMIT =~ $DESC_PATTERN ]]; then
+              if [[ ! $COMMIT_MSG =~ $DESC_PATTERN ]]; then
                 echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
                 exit 1
               else
-                echo "✅ Commit message is correctly formatted and descriptive: $COMMIT"
+                echo "✅ Commit message is correctly formatted and descriptive: $COMMIT_MSG"
               fi
             fi
           done
