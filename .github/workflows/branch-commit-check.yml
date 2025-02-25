@@ -43,8 +43,8 @@ jobs:
           # Ensure we have the latest remote information
           git fetch origin
 
-          # Get commit messages since the last commit on the current branch excluding merge commits
-          COMMITS=$(git log --no-merges --pretty=format:"%s" origin/$(git rev-parse --abbrev-ref HEAD)..HEAD)
+          # Get commit messages since the last commit on the current branch, excluding merges
+          COMMITS=$(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --pretty=format:"%s" --no-merges)
           
           PATTERN="^PAYB-[0-9]+ - .+$"
           for COMMIT in $COMMITS; do
