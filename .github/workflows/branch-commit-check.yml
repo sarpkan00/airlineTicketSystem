@@ -20,15 +20,12 @@ jobs:
 
       - name: Check Branch Name
         run: |
-          # To get the branch name differently for pull requests
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           if [[ $GITHUB_REF == refs/pull/* ]]; then
             BRANCH_NAME="${GITHUB_HEAD_REF}"
-          else
-            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           fi
-          
+
           PATTERN="^(feature|bugfix|merge)\/PAYB-[0-9]+(-(dev|uat|stage|master))?$"
-          echo "Branch: $BRANCH_NAME"
           if [[ ! $BRANCH_NAME =~ $PATTERN ]]; then
             echo "❌ Invalid branch name: $BRANCH_NAME"
             echo "Branch name must follow one of these formats:"
@@ -42,23 +39,19 @@ jobs:
 
       - name: Check Commit Messages
         run: |
-          # Ensure we have the latest remote information
           git fetch origin
 
-          # Get the base branch (target branch) for pull requests
-          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-            BASE_BRANCH="$GITHUB_BASE_REF"
-          else
+          BASE_BRANCH="$GITHUB_BASE_REF"
+          if [[ $GITHUB_EVENT_NAME != "pull_request" ]]; then
             BASE_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
           fi
 
-          # Get commit messages for the current branch and exclude merges
           COMMITS=$(git log origin/$BASE_BRANCH..HEAD --pretty=format:"%s" --no-merges)
 
           PATTERN="^PAYB-[0-9]+ - .+$"
-          # Loop through commits
+          DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"
+
           while IFS= read -r COMMIT_MSG; do
-            # Skip empty commit messages
             if [[ -z "$COMMIT_MSG" ]]; then
               echo "⚠️ Empty commit message found."
               continue
@@ -68,14 +61,10 @@ jobs:
               echo "❌ Invalid commit message: $COMMIT_MSG"
               echo "Commit message must follow this format: 'PAYB-1234 - Description'"
               exit 1
+            elif [[ ! $COMMIT_MSG =~ $DESC_PATTERN ]]; then
+              echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
+              exit 1
             else
-              # Check if commit message is descriptive enough
-              DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"  # Minimum 10 characters for description
-              if [[ ! $COMMIT_MSG =~ $DESC_PATTERN ]]; then
-                echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
-                exit 1
-              else
-                echo "✅ Commit message is correctly formatted and descriptive: $COMMIT_MSG"
-              fi
+              echo "✅ Commit message is correctly formatted and descriptive: $COMMIT_MSG"
             fi
           done <<< "$COMMITS"
