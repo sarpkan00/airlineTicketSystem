@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Tüm commit geçmişini almak için
 
       - name: Check Branch Name
         run: |
@@ -43,8 +45,15 @@ jobs:
           # Ensure we have the latest remote information
           git fetch origin
 
+          # Get the base branch (target branch) for pull requests
+          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            BASE_BRANCH="$GITHUB_BASE_REF"
+          else
+            BASE_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          fi
+
           # Get commit messages for the current branch and exclude merges
-          COMMITS=$(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --pretty=format:"%s" --no-merges)
+          COMMITS=$(git log origin/$BASE_BRANCH..HEAD --pretty=format:"%s" --no-merges)
 
           PATTERN="^PAYB-[0-9]+ - .+$"
           # Loop through commits
