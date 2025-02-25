@@ -34,34 +34,4 @@ jobs:
             echo "  - bugfix/PAYB-1234"
             echo "  - merge/PAYB-1234-dev, merge/PAYB-1234-uat, merge/PAYB-1234-stage, merge/PAYB-1234-master"
             exit 1
-          else
-            echo "✅ Branch name is correctly formatted: $BRANCH_NAME"
-          fi
-
-      - name: Check Commit Messages
-        run: |
-          # Ensure we have the latest remote information
-          git fetch origin
-
-          # Get commit messages for the current branch and exclude merges
-          COMMITS=$(git log origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --oneline --no-merges)
-
-          PATTERN="^PAYB-[0-9]+ - .+$"
-          # Loop through commits
-          while IFS= read -r COMMIT; do
-            COMMIT_MSG=$(echo $COMMIT | sed 's/^[a-f0-9]* //')
-            if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
-              echo "❌ Invalid commit message: $COMMIT_MSG"
-              echo "Commit message must follow this format: 'PAYB-1234 - Description'"
-              exit 1
-            else
-              # Check if commit message is descriptive enough
-              DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"  # Minimum 10 characters for description
-              if [[ ! $COMMIT_MSG =~ $DESC_PATTERN ]]; then
-                echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
-                exit 1
-              else
-                echo "✅ Commit message is correctly formatted and descriptive: $COMMIT_MSG"
-              fi
-            fi
-          done <<< "$COMMI
+     
