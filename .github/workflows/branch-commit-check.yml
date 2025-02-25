@@ -1,0 +1,53 @@
+name: Branch and Commit Check
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Branch Name
+        run: |
+          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}")
+          PATTERN="^(feature|bugfix|merge)\/PAYB-[0-9]+(-(dev|uat|stage|master))?$"
+          if [[ ! $BRANCH_NAME =~ $PATTERN ]]; then
+            echo "❌ Invalid branch name: $BRANCH_NAME"
+            echo "Branch name must follow one of these formats:"
+            echo "  - feature/PAYB-1234"
+            echo "  - bugfix/PAYB-1234"
+            echo "  - merge/PAYB-1234-dev, merge/PAYB-1234-uat, merge/PAYB-1234-stage, merge/PAYB-1234-master"
+            exit 1
+          else
+            echo "✅ Branch name is correctly formatted: $BRANCH_NAME"
+          fi
+
+      - name: Check Commit Messages
+        run: |
+          COMMITS=$(git log origin/main..HEAD --pretty=format:"%s")
+          PATTERN="^PAYB-[0-9]+ - .+$"
+          for COMMIT in $COMMITS; do
+            if [[ ! $COMMIT =~ $PATTERN ]]; then
+              echo "❌ Invalid commit message: $COMMIT"
+              echo "Commit message must follow this format: 'PAYB-1234 - Description'"
+              exit 1
+            else
+              # Check if commit message is descriptive enough
+              DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"  # Minimum 10 characters for description
+              if [[ ! $COMMIT =~ $DESC_PATTERN ]]; then
+                echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
+                exit 1
+              else
+                echo "✅ Commit message is correctly formatted and descriptive: $COMMIT"
+              fi
+            fi
+          done
