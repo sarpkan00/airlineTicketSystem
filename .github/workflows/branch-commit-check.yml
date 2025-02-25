@@ -18,8 +18,15 @@ jobs:
 
       - name: Check Branch Name
         run: |
-          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}")
+          # Pull request'ten farklı olarak branch adı almak için
+          if [[ $GITHUB_REF == refs/pull/* ]]; then
+            BRANCH_NAME=$(git log -1 --pretty=%D | sed 's/.*origin\///')
+          else
+            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          fi
+          
           PATTERN="^(feature|bugfix|merge)\/PAYB-[0-9]+(-(dev|uat|stage|master))?$"
+          echo "Branch: $BRANCH_NAME"
           if [[ ! $BRANCH_NAME =~ $PATTERN ]]; then
             echo "❌ Invalid branch name: $BRANCH_NAME"
             echo "Branch name must follow one of these formats:"
