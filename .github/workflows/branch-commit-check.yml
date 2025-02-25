@@ -20,7 +20,7 @@ jobs:
         run: |
           # Pull request'ten farklı olarak branch adı almak için
           if [[ $GITHUB_REF == refs/pull/* ]]; then
-            BRANCH_NAME=$(git log -1 --pretty=%D | sed 's/.*origin\///')
+            BRANCH_NAME="${GITHUB_HEAD_REF}"
           else
             BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           fi
