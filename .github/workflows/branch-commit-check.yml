@@ -40,7 +40,12 @@ jobs:
 
       - name: Check Commit Messages
         run: |
-          COMMITS=$(git log origin/main..HEAD --pretty=format:"%s")
+          # Ensure we have the latest remote information
+          git fetch origin
+
+          # Get commit messages since the last commit on the current branch
+          COMMITS=$(git log --pretty=format:"%s" origin/$(git rev-parse --abbrev-ref HEAD)..HEAD)
+          
           PATTERN="^PAYB-[0-9]+ - .+$"
           for COMMIT in $COMMITS; do
             if [[ ! $COMMIT =~ $PATTERN ]]; then
