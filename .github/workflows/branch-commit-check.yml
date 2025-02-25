@@ -64,4 +64,4 @@ jobs:
                 echo "✅ Commit message is correctly formatted and descriptive: $COMMIT_MSG"
               fi
             fi
-          done <<< "$COMMITS"  # <-- Burada while döngüsü doğru şekilde kapatılmalı.
+          done <<< "$COMMITS"
