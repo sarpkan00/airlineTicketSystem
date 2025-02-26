@@ -29,7 +29,7 @@ jobs:
           if [[ $BRANCH_NAME == deployment/* || $BRANCH_NAME == merge/deployment/* ]]; then
             echo "✅ Branch name is correctly formatted (deployment or merge/deployment): $BRANCH_NAME"
           else
-            PATTERN="^(feature|bugfix|merge)\/PAYB-[0-9]+(-(dev|uat|stage|master))?$"
+            PATTERN="^(feature|bugfix|merge)\/(PAYB-[0-9]+)(-(dev|uat|stage|master))?$"
             if [[ ! $BRANCH_NAME =~ $PATTERN ]]; then
               echo "❌ Invalid branch name: $BRANCH_NAME"
               echo "Branch name must follow one of these formats:"
@@ -40,16 +40,19 @@ jobs:
               echo "  - merge/deployment/<any-name>"
               exit 1
             else
+              TASK_ID="${BASH_REMATCH[2]}"  # Extract PAYB-xxxx
               echo "✅ Branch name is correctly formatted: $BRANCH_NAME"
+              echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
             fi
           fi
 
       - name: Check Commit Messages
         run: |
           # Skip commit message check for deployment/ and merge/deployment/ branches
-          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           if [[ $GITHUB_REF == refs/pull/* ]]; then
             BRANCH_NAME="${GITHUB_HEAD_REF}"
+          else
+            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           fi
 
           if [[ $BRANCH_NAME == deployment/* || $BRANCH_NAME == merge/deployment/* ]]; then
@@ -77,6 +80,15 @@ jobs:
           elif [[ ! $LATEST_COMMIT_MSG =~ $DESC_PATTERN ]]; then
             echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
             exit 1
+          fi
+
+          # Extract TASK ID from commit message
+          COMMIT_TASK_ID=$(echo "$LATEST_COMMIT_MSG" | grep -oE 'PAYB-[0-9]+')
+
+          # Check if branch and commit task IDs match
+          if [[ "$COMMIT_TASK_ID" != "$TASK_ID" ]]; then
+            echo "❌ Branch task ID ($TASK_ID) and commit task ID ($COMMIT_TASK_ID) do not match!"
+            exit 1
           else
-            echo "✅ Commit message is correctly formatted and descriptive: $LATEST_COMMIT_MSG"
+            echo "✅ Commit message matches the branch task ID: $COMMIT_TASK_ID"
           fi
