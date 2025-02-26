@@ -10,5 +10,6 @@ public interface AirlineCompanyRepository extends JpaRepository<AirlineCompany, 
 
 
 
+    Optional<AirlineCompany> findByIdAndCompanyName(int id, String companyName);
 
 }
