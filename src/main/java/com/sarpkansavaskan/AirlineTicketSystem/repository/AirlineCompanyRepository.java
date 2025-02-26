@@ -8,5 +8,9 @@ import java.util.Optional;
 public interface AirlineCompanyRepository extends JpaRepository<AirlineCompany, Integer> {
     Optional<AirlineCompany> findByCompanyName(String companyName);
 
+
+    Optional<AirlineCompany> findByIdAndCompanyName(int id, String companyName);
+    Optional<AirlineCompany> findByPhoneNumber(String phoneNumber);
+
     Optional<AirlineCompany> findById(int id);
 }

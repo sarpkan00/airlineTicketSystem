@@ -37,10 +37,4 @@ public class AirlineCompany {
         this.companyName = companyName;
         this.phoneNumber = phoneNumber;
     }
-
-    public AirlineCompany(String companyName, String phoneNumber, List<AirlineFlight> airlineFlights) {
-        this.companyName = companyName;
-        this.phoneNumber = phoneNumber;
-        this.airlineFlights = airlineFlights;
-    }
 }
