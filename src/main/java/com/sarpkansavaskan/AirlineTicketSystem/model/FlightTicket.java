@@ -51,4 +51,6 @@ public class FlightTicket {
         this.creditCard = creditCard;
         this.airlineFlight = airlineFlight;
     }
+
+
 }
