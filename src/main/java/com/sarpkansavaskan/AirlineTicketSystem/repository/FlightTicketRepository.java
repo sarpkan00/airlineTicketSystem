@@ -9,4 +9,6 @@ public interface FlightTicketRepository extends JpaRepository<FlightTicket, Inte
     Optional<FlightTicket> findByTicketNumber(long ticketNumber);
 
 
+
+
 }
