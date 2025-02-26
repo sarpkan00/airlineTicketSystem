@@ -57,15 +57,10 @@ jobs:
             exit 0
           fi
 
-          git fetch origin
+          git fetch --unshallow || git fetch --all
 
-          BASE_BRANCH="$GITHUB_BASE_REF"
-          if [[ $GITHUB_EVENT_NAME != "pull_request" ]]; then
-            BASE_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-          fi
-
-          # Get only the latest commit message
-          LATEST_COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          # Get the latest non-merge commit message
+          LATEST_COMMIT_MSG=$(git log --no-merges -1 --pretty=format:"%s")
 
           PATTERN="^PAYB-[0-9]+ - .+$"
           DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"
