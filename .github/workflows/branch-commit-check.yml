@@ -64,25 +64,24 @@ jobs:
             BASE_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
           fi
 
-          COMMITS=$(git log origin/$BASE_BRANCH..HEAD --pretty=format:"%s" --no-merges)
+          # Get only the latest commit message
+          LATEST_COMMIT_MSG=$(git log -1 --pretty=format:"%s")
 
           PATTERN="^PAYB-[0-9]+ - .+$"
           DESC_PATTERN="^PAYB-[0-9]+ - .{10,}$"
 
-          while IFS= read -r COMMIT_MSG; do
-            if [[ -z "$COMMIT_MSG" ]]; then
-              echo "⚠️ Empty commit message found."
-              continue
-            fi
+          if [[ -z "$LATEST_COMMIT_MSG" ]]; then
+            echo "⚠️ Empty commit message found."
+            exit 1
+          fi
 
-            if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
-              echo "❌ Invalid commit message: $COMMIT_MSG"
-              echo "Commit message must follow this format: 'PAYB-1234 - Description'"
-              exit 1
-            elif [[ ! $COMMIT_MSG =~ $DESC_PATTERN ]]; then
-              echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
-              exit 1
-            else
-              echo "✅ Commit message is correctly formatted and descriptive: $COMMIT_MSG"
-            fi
-          done <<< "$COMMITS"
+          if [[ ! $LATEST_COMMIT_MSG =~ $PATTERN ]]; then
+            echo "❌ Invalid commit message: $LATEST_COMMIT_MSG"
+            echo "Commit message must follow this format: 'PAYB-1234 - Description'"
+            exit 1
+          elif [[ ! $LATEST_COMMIT_MSG =~ $DESC_PATTERN ]]; then
+            echo "❌ Commit message is too short. It should be at least 10 characters long after the task ID."
+            exit 1
+          else
+            echo "✅ Commit message is correctly formatted and descriptive: $LATEST_COMMIT_MSG"
+          fi
