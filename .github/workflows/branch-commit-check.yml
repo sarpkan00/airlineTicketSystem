@@ -25,9 +25,9 @@ jobs:
             BRANCH_NAME="${GITHUB_HEAD_REF}"
           fi
 
-          # Allow deployment/ branches without PAYB- requirement
-          if [[ $BRANCH_NAME == deployment/* ]]; then
-            echo "✅ Branch name is correctly formatted (deployment): $BRANCH_NAME"
+          # Allow deployment/ and merge/deployment/ branches without PAYB- requirement
+          if [[ $BRANCH_NAME == deployment/* || $BRANCH_NAME == merge/deployment/* ]]; then
+            echo "✅ Branch name is correctly formatted (deployment or merge/deployment): $BRANCH_NAME"
           else
             PATTERN="^(feature|bugfix|merge)\/PAYB-[0-9]+(-(dev|uat|stage|master))?$"
             if [[ ! $BRANCH_NAME =~ $PATTERN ]]; then
@@ -37,6 +37,7 @@ jobs:
               echo "  - bugfix/PAYB-1234"
               echo "  - merge/PAYB-1234-dev, merge/PAYB-1234-uat, merge/PAYB-1234-stage, merge/PAYB-1234-master"
               echo "  - deployment/<any-name>"
+              echo "  - merge/deployment/<any-name>"
               exit 1
             else
               echo "✅ Branch name is correctly formatted: $BRANCH_NAME"
@@ -45,14 +46,14 @@ jobs:
 
       - name: Check Commit Messages
         run: |
-          # Skip commit message check for deployment/ branches
+          # Skip commit message check for deployment/ and merge/deployment/ branches
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           if [[ $GITHUB_REF == refs/pull/* ]]; then
             BRANCH_NAME="${GITHUB_HEAD_REF}"
           fi
 
-          if [[ $BRANCH_NAME == deployment/* ]]; then
-            echo "⏩ Skipping commit message check for deployment branch: $BRANCH_NAME"
+          if [[ $BRANCH_NAME == deployment/* || $BRANCH_NAME == merge/deployment/* ]]; then
+            echo "⏩ Skipping commit message check for deployment or merge/deployment branch: $BRANCH_NAME"
             exit 0
           fi
 
